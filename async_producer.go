@@ -3,6 +3,7 @@ package sarama
 import (
 	"encoding/binary"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
@@ -276,6 +277,11 @@ func (p *asyncProducer) dispatcher() {
 			continue
 		}
 		if msg.byteSize(version) > p.conf.Producer.MaxMessageBytes {
+			value, _ := msg.Value.Encode()
+			log.Printf(
+				"ErrMessageSizeTooLarge, msg size: %d, max_size: %d, value %s\n",
+				msg.byteSize(version), p.conf.Producer.MaxMessageBytes, string(value),
+			)
 			p.returnError(msg, ErrMessageSizeTooLarge)
 			continue
 		}
